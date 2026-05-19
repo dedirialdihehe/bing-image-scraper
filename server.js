@@ -1,5 +1,5 @@
 import express from "express";
-import { chromium } from "playwright-core";
+import { chromium } from "playwright";
 
 const app = express();
 
@@ -17,7 +17,6 @@ app.get("/search", async (req, res) => {
   try {
     const browser = await chromium.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
