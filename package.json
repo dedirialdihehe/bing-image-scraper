@@ -9,3 +9,15 @@
     "playwright": "^1.52.0"
   }
 }
+{
+  "name": "bing-scraper",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "playwright": "^1.52.0"
+  }
+}
