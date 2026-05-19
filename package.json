@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "playwright-core": "^1.52.0"
+    "playwright": "^1.52.0"
   }
 }
