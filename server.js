@@ -4,72 +4,58 @@ import { chromium } from "playwright";
 const app = express();
 
 app.get("/search", async (req, res) => {
+  const query = req.query.q;
+  const limit = Number(req.query.limit) || 20;
 
-  const q = req.query.q;
-
-  if (!q) {
+  if (!query) {
     return res.json({
-      success: false
+      success: false,
+      error: "Missing query"
     });
   }
 
-  let browser;
-
   try {
-
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--no-sandbox"]
+    const browser = await chromium.launch({
+      headless: true
     });
 
     const page = await browser.newPage();
 
     await page.goto(
-      "https://www.bing.com/images/search?q=" +
-      encodeURIComponent(q),
+      `https://www.bing.com/images/search?q=${encodeURIComponent(query)}`,
       {
-        waitUntil: "domcontentloaded"
+        waitUntil: "domcontentloaded",
+        timeout: 60000
       }
     );
 
-    await page.waitForTimeout(3000);
+    await page.waitForSelector("img");
 
-    const images = await page.$$eval(
-      ".mimg",
-      els =>
-        els
-          .map(x => x.src || x.dataset.src)
-          .filter(Boolean)
-          .slice(0, 20)
-    );
+    const images = await page.evaluate((limit) => {
+      return [...document.querySelectorAll("img")]
+        .map(img => img.src)
+        .filter(src =>
+          src &&
+          src.startsWith("http")
+        )
+        .slice(0, limit);
+    }, limit);
 
-    if (browser?.close) {
-      await browser.close();
-    }
+    await browser.close();
 
-    return res.json({
+    res.json({
       success: true,
       total: images.length,
       images
     });
 
-  } catch (e) {
-
-    try {
-      if (browser?.close) {
-        await browser.close();
-      }
-    } catch {}
-
-    return res.json({
+  } catch (err) {
+    res.json({
       success: false,
-      error: e.message
+      error: err.message
     });
-
   }
-
 });
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
