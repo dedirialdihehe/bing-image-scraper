@@ -64,16 +64,18 @@ app.get("/search", async (req, res) => {
 
   } catch (e) {
 
-    if (browser) {
+  try {
+    if (browser?.close) {
       await browser.close();
     }
+  } catch {}
 
-    return res.json({
-      success:false,
-      error:e.message
-    });
+  return res.json({
+    success:false,
+    error:e.message
+  });
 
-  }
+}
 
 });
 
