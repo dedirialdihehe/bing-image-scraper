@@ -28,11 +28,10 @@ app.get("/search", async (req, res) => {
         timeout: 60000
       }
     );
+await page.waitForSelector(".mimg");
 
-    await page.waitForSelector("img");
-
-    const images = await page.evaluate((limit) => {
-      return [...document.querySelectorAll("img")]
+const images = await page.evaluate((limit) => {
+  return [...document.querySelectorAll(".mimg")]
         .map(img => img.src)
         .filter(src =>
           src &&
