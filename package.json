@@ -2,12 +2,10 @@
   "name": "bing-scraper",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "scripts": {
-  "start": "node server.js"
-}
+    "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "playwright-core": "^1.52.0"
   }
 }
