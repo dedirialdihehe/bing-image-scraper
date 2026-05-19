@@ -1,68 +1,41 @@
-import express from "express";
-import { chromium } from "playwright";
+try {
 
-const app = express();
+  browser = await chromium.launch({
+    headless: true,
+    args: ["--no-sandbox"]
+  });
 
-app.get("/search", async (req, res) => {
+  const page = await browser.newPage();
 
-  const q = req.query.q;
+  await page.goto(
+    "https://www.bing.com/images/search?q=" +
+    encodeURIComponent(q),
+    {
+      waitUntil: "domcontentloaded"
+    }
+  );
 
-  if (!q) {
-    return res.json({
-      success:false
-    });
+  await page.waitForTimeout(3000);
+
+  const images = await page.$$eval(
+    ".mimg",
+    els =>
+      els
+        .map(x => x.src || x.dataset.src)
+        .filter(Boolean)
+        .slice(0, 20)
+  );
+
+  if (browser?.close) {
+    await browser.close();
   }
 
-  let browser;
+  return res.json({
+    success: true,
+    images
+  });
 
-  try {
-
-    browser =
-      chromium.launch({
-  headless:true,
-  executablePath:
-    "/opt/render/.cache/ms-playwright/chromium-1223/chrome-linux/chrome"
-});
-
-    const page =
-      await browser.newPage();
-
-    await page.goto(
-      "https://www.bing.com/images/search?q=" +
-      encodeURIComponent(q),
-      {
-        waitUntil:"domcontentloaded",
-        timeout:30000
-      }
-    );
-
-    await page.waitForTimeout(2500);
-
-    const images =
-      await page.$$eval(
-        ".mimg",
-        els =>
-          els
-            .map(x =>
-              x.src ||
-              x.getAttribute("data-src")
-            )
-            .filter(Boolean)
-            .filter(x =>
-              x.startsWith("http")
-            )
-            .slice(0, 20)
-      );
-
-    await browser.close();
-
-    return res.json({
-      success:true,
-      total:images.length,
-      images
-    });
-
-  } catch (e) {
+} catch (e) {
 
   try {
     if (browser?.close) {
@@ -71,19 +44,8 @@ app.get("/search", async (req, res) => {
   } catch {}
 
   return res.json({
-    success:false,
-    error:e.message
+    success: false,
+    error: e.message
   });
 
 }
-
-});
-
-const PORT =
-  process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(
-    "SCRAPER ON " + PORT
-  );
-});
