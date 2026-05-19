@@ -1,0 +1,11 @@
+{
+  "name": "bing-scraper",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "playwright": "^1.52.0"
+  }
+}
