@@ -18,9 +18,11 @@ app.get("/search", async (req, res) => {
   try {
 
     browser =
-      await chromium.launch({
-        headless:true
-      });
+      chromium.launch({
+  headless:true,
+  executablePath:
+    "/opt/render/.cache/ms-playwright/chromium-1223/chrome-linux/chrome"
+});
 
     const page =
       await browser.newPage();
